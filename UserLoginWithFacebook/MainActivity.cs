@@ -24,15 +24,54 @@ namespace UserLoginWithFacebook
 
             // Get our button from the layout resource,
             // and attach an event to it
+            var Twitter = FindViewById<Button>(Resource.Id.TwitterButton);
+            Twitter.Click += delegate { LoginToTwitter(); };
 
             var facebook = FindViewById<Button>(Resource.Id.FacebookButton);
             facebook.Click += delegate { LoginToFacebook(true); };
 
             var facebookNoCancel = FindViewById<Button>(Resource.Id.FacebookButtonNoCancel);
             facebookNoCancel.Click += delegate { LoginToFacebook(false); };
+            
+        }
+        //Login with Twitter
+        private void LoginToTwitter()
+        {
+            var auth = new OAuth1Authenticator(
+            Constants.CustomerKey,
+             Constants.CustomerSecret,
+             new Uri("https://api.twitter.com/oauth/request_token"),  
+           new Uri("https://api.twitter.com/oauth/authorize"),  
+             new Uri("https://api.twitter.com/oauth/access_token"),  
+            new Uri("http://mobile.twitter.com")  
 
+            );
+
+            auth.Completed += twitter_auth_Completed;
+            StartActivity(auth.GetUI(this));
         }
 
+        private async void twitter_auth_Completed(object sender, AuthenticatorCompletedEventArgs eventArgs)
+        {
+            if (eventArgs.IsAuthenticated)
+            {
+                Toast.MakeText(this, "Authenticated.!!", ToastLength.Long).Show();
+                //use the account object and make the desired API call
+                var request = new OAuth1Request(
+                                      "GET",
+                                      new Uri("https://api.twitter.com/1.1/account/verify_credentials.json"),
+                                      null,
+                                      eventArgs.Account);
+
+                await request.GetResponseAsync().ContinueWith(t =>
+                {
+                    var resString = t.Result.GetResponseText();
+                    var data = JsonValue.Parse(resString);
+
+                  //  UserData.userData = data;
+                });
+            }
+        }
         void LoginToFacebook(bool allowCancel)
         {
             var auth = new OAuth2Authenticator(

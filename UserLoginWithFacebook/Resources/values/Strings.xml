@@ -4,4 +4,6 @@
     <string name="ApplicationName">UserLoginWithFacebook</string>
   <string name="Facebook">Login to Facebook</string>
 	<string name="FacebookNoCancel">Login to Facebook (no cancel)</string>
+  <string name="TwitterButton">Login to Twitter</string>
+
 </resources>
